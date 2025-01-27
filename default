@@ -1,0 +1,66 @@
+# Default server configuration
+server {
+    listen 80;
+    listen [::]:80;
+    server_name chem-rsmu.ru www.chem-rsmu.ru;
+
+    location /webhook/ {
+        proxy_pass http://127.0.0.1:8080;  # Убедитесь, что вебхук передается на правильный порт FastAPI (например, 8080)
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # SSL configuration
+    root /var/www/html;
+    index index.html index.htm index.nginx-debian.html;
+
+    server_name _;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
+
+# Server with SSL (HTTPS) settings
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl ipv6only=on;
+    server_name chem-rsmu.ru www.chem-rsmu.ru;
+
+    # SSL certificate configuration (make sure the path to certificates is correct)
+    ssl_certificate /etc/letsencrypt/live/chem-rsmu.ru/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/chem-rsmu.ru/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    location /webhook/ {
+        proxy_pass http://127.0.0.1:8080;  # Убедитесь, что вебхук передается на правильный порт FastAPI
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # General location for other requests
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
+
+# Redirect HTTP to HTTPS
+server {
+    listen 80;
+    listen [::]:80;
+    server_name chem-rsmu.ru www.chem-rsmu.ru;
+
+    if ($host = www.chem-rsmu.ru) {
+        return 301 https://$host$request_uri;
+    }
+    if ($host = chem-rsmu.ru) {
+        return 301 https://$host$request_uri;
+    }
+
+    return 404;  # Return 404 if no redirection is possible
+}
