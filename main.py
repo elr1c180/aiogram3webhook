@@ -6,8 +6,8 @@ from contextlib import asynccontextmanager
 from aiogram.filters import Command
 from aiogram.exceptions import TelegramAPIError
 # Конфигурация
-BOT_TOKEN = "7942531668:AAEySRCoozmFH28G5ovTKUb6qkY35YpjeEc"
-WEBHOOK_HOST = "https://chem-rsmu.ru"
+BOT_TOKEN = ""
+WEBHOOK_HOST = "" # Ваш домен / domain
 WEBHOOK_PATH = f"/webhook/{BOT_TOKEN}"
 WEBHOOK_URI = WEBHOOK_HOST + WEBHOOK_PATH
 
@@ -72,21 +72,10 @@ def find_chat_by_inv_id(inv_id: int):
 
 @app.post("/success/")
 async def success_webhook(request: Request):
-    """Обработчик вебхука."""
-    form_data = await request.form()  # Получаем данные формы
-    print(form_data)  # Выводим данные для отладки
-    invoice_number = form_data['InvId'] # Выводим данные для отладки
-    chat_id = find_chat_by_inv_id(invoice_number)
-    print(chat_id)
-    #await bot.send_message(chat_id, 'Оплата завершена. Для доступа к материалам необходимо перейти по одноразовой ссылке ниже. Ссылка действительна в течение 10 минут', parse_mode='html')
-    # Логика обработки данных вебхука
     return {"status": "success"}
 
 @app.post("/result/")
 async def result_webhook(request: Request):
-    """Обработчик вебхука."""
-    form_data = await request.form()  # Получаем данные формы
-    # Логика обработки данных вебхука
     return {"status": "result"}
 
 
